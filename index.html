@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario - Tienda de Electrónicos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        h1::before {
+            content: "📦";
+            font-size: 40px;
+        }
+
+        h1::after {
+            content: "🛒";
+            font-size: 40px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        /* Formularios */
+        .form-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .form-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            display: inline-block;
+            margin: 5px;
+        }
+
+        input, button {
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+        }
+
+        input {
+            border: 1px solid #ddd;
+            width: 200px;
+            background: white;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102,126,234,0.3);
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Vista de tarjetas */
+        .productos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .producto-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid #eee;
+        }
+
+        .producto-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        .producto-imagen {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #f0f0f0;
+        }
+
+        .producto-info {
+            padding: 15px;
+        }
+
+        .producto-nombre {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .producto-precio {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .producto-stock {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin: 10px 0;
+        }
+
+        .stock-bajo {
+            background: #ff4757;
+            color: white;
+        }
+
+        .stock-normal {
+            background: #28a745;
+            color: white;
+        }
+
+        .producto-acciones {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-editar {
+            background: #ffc107;
+            color: #333;
+            flex: 1;
+        }
+
+        .btn-eliminar {
+            background: #dc3545;
+            flex: 1;
+        }
+
+        .btn-editar:hover {
+            background: #e0a800;
+        }
+
+        .btn-eliminar:hover {
+            background: #c82333;
+        }
+
+        /* Modal de edición */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 20px;
+        }
+
+        .modal-content input {
+            width: calc(100% - 20px);
+            margin: 10px 0;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .imagen-preview {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+        }
+
+        .sin-imagen {
+            width: 100%;
+            height: 200px;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .filtros {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filtros input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .stats {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Inventario de Productos Electrónicos</h1>
+        <div class="subtitle">📱 Gestión completa de inventario con imágenes</div>
+
+        <!-- Estadísticas -->
+        <div class="stats" id="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="total-productos">0</div>
+                <div class="stat-label">Total Productos</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="stock-total">0</div>
+                <div class="stat-label">Stock Total</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="valor-total">S/ 0</div>
+                <div class="stat-label">Valor del Inventario</div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filtros">
+            <input type="text" id="filtro-nombre" placeholder="🔍 Buscar por nombre..." onkeyup="filtrarProductos()">
+            <select id="filtro-stock" onchange="filtrarProductos()" style="padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+                <option value="todos">Todos los productos</option>
+                <option value="bajo">Stock bajo (< 10)</option>
+                <option value="normal">Stock normal (≥ 10)</option>
+            </select>
+        </div>
+
+        <!-- Formulario para agregar producto -->
+        <div class="form-section">
+            <h3>➕ Agregar Nuevo Producto</h3>
+            <div class="form-group">
+                <input type="text" id="nombre" placeholder="Nombre del producto">
+            </div>
+            <div class="form-group">
+                <input type="number" id="precio" placeholder="Precio (S/)" step="0.01">
+            </div>
+            <div class="form-group">
+                <input type="number" id="stock" placeholder="Stock">
+            </div>
+            <div class="form-group">
+                <input type="file" id="imagen" accept="image/*" capture="environment">
+            </div>
+            <div class="form-group">
+                <button onclick="crearProducto()">➕ Agregar Producto</button>
+            </div>
+            <div id="preview-container" style="margin-top: 10px;"></div>
+        </div>
+
+        <!-- Grid de productos -->
+        <div id="productos-grid" class="productos-grid">
+            <div style="text-align: center; padding: 50px;">Cargando productos...</div>
+        </div>
+    </div>
+
+    <!-- Modal de edición -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <h3>✏️ Editar Producto</h3>
+            <input type="hidden" id="edit-id">
+            <input type="text" id="edit-nombre" placeholder="Nombre">
+            <input type="number" id="edit-precio" placeholder="Precio (S/)" step="0.01">
+            <input type="number" id="edit-stock" placeholder="Stock">
+            <input type="file" id="edit-imagen" accept="image/*">
+            <img id="edit-imagen-preview" class="imagen-preview" style="display: none;">
+            <div class="modal-buttons">
+                <button onclick="actualizarProducto()">💾 Guardar Cambios</button>
+                <button onclick="cerrarModal()" style="background: #6c757d;">❌ Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = 'http://localhost:3000/api/productos';
+        let productosOriginales = [];
+
+        // Previsualizar imagen al seleccionar
+        document.getElementById('imagen').addEventListener('change', function(e) {
+            const preview = document.getElementById('preview-container');
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    preview.innerHTML = `<img src="${event.target.result}" class="imagen-preview" style="width: 80px; height: 80px;">`;
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            } else {
+                preview.innerHTML = '';
+            }
+        });
+
+        // Cargar productos
+        async function cargarProductos() {
+            try {
+                const respuesta = await fetch(API);
+                productosOriginales = await respuesta.json();
+                actualizarEstadisticas();
+                mostrarProductos(productosOriginales);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('productos-grid').innerHTML = '<div style="text-align: center; padding: 50px; color: red;">❌ Error al conectar con el servidor</div>';
+            }
+        }
+
+        // Mostrar productos en grid
+        function mostrarProductos(productos) {
+            const grid = document.getElementById('productos-grid');
+            
+            if (productos.length === 0) {
+                grid.innerHTML = '<div style="text-align: center; padding: 50px;">📭 No hay productos registrados</div>';
+                return;
+            }
+
+            grid.innerHTML = productos.map(producto => `
+                <div class="producto-card">
+                    ${producto.imagen ? 
+                        `<img src="${producto.imagen}" class="producto-imagen" alt="${producto.nombre}">` : 
+                        `<div class="sin-imagen">📷 Sin imagen</div>`
+                    }
+                    <div class="producto-info">
+                        <div class="producto-nombre">${producto.nombre}</div>
+                        <div class="producto-precio">S/ ${parseFloat(producto.precio).toFixed(2)}</div>
+                        <div class="producto-stock ${producto.stock < 10 ? 'stock-bajo' : 'stock-normal'}">
+                            📦 Stock: ${producto.stock} unidades
+                        </div>
+                        <div class="producto-acciones">
+                            <button class="btn-editar" onclick="mostrarEditar(${producto.id}, '${producto.nombre}', ${producto.precio}, ${producto.stock})">✏️ Editar</button>
+                            <button class="btn-eliminar" onclick="eliminarProducto(${producto.id})">🗑️ Eliminar</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Filtrar productos
+        function filtrarProductos() {
+            const filtroNombre = document.getElementById('filtro-nombre').value.toLowerCase();
+            const filtroStock = document.getElementById('filtro-stock').value;
+            
+            let filtrados = productosOriginales.filter(p => 
+                p.nombre.toLowerCase().includes(filtroNombre)
+            );
+            
+            if (filtroStock === 'bajo') {
+                filtrados = filtrados.filter(p => p.stock < 10);
+            } else if (filtroStock === 'normal') {
+                filtrados = filtrados.filter(p => p.stock >= 10);
+            }
+            
+            mostrarProductos(filtrados);
+        }
+
+        // Actualizar estadísticas
+        function actualizarEstadisticas() {
+            const total = productosOriginales.length;
+            const stockTotal = productosOriginales.reduce((sum, p) => sum + p.stock, 0);
+            const valorTotal = productosOriginales.reduce((sum, p) => sum + (p.precio * p.stock), 0);
+            
+            document.getElementById('total-productos').textContent = total;
+            document.getElementById('stock-total').textContent = stockTotal;
+            document.getElementById('valor-total').textContent = `S/ ${valorTotal.toFixed(2)}`;
+        }
+
+        // Crear producto con imagen
+        async function crearProducto() {
+            const nombre = document.getElementById('nombre').value;
+            const precio = document.getElementById('precio').value;
+            const stock = document.getElementById('stock').value;
+            const imagenFile = document.getElementById('imagen').files[0];
+            
+            if (!nombre || !precio) {
+                alert('❌ Nombre y precio son obligatorios');
+                return;
+            }
+            
+            let imagenBase64 = null;
+            if (imagenFile) {
+                imagenBase64 = await convertirImagenABase64(imagenFile);
+            }
+            
+            try {
+                await fetch(API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        nombre, 
+                        precio: parseFloat(precio), 
+                        stock: parseInt(stock) || 0,
+                        imagen: imagenBase64
+                    })
+                });
+                
+                document.getElementById('nombre').value = '';
+                document.getElementById('precio').value = '';
+                document.getElementById('stock').value = '';
+                document.getElementById('imagen').value = '';
+                document.getElementById('preview-container').innerHTML = '';
+                
+                cargarProductos();
+                alert('✅ Producto creado exitosamente');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error al crear el producto');
+            }
+        }
+
+        // Convertir imagen a Base64
+        function convertirImagenABase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Mostrar modal de edición
+        function mostrarEditar(id, nombre, precio, stock) {
+            document.getElementById('edit-id').value = id;
+            document.getElementById('edit-nombre').value = nombre;
+            document.getElementById('edit-precio').value = precio;
+            document.getElementById('edit-stock').value = stock;
+            document.getElementById('edit-imagen').value = '';
+            document.getElementById('edit-imagen-preview').style.display = 'none';
+            document.getElementById('edit-modal').style.display = 'flex';
+            
+            document.getElementById('edit-imagen').onchange = function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const preview = document.getElementById('edit-imagen-preview');
+                        preview.src = event.target.result;
+                        preview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            };
+        }
+
+        // Actualizar producto
+        async function actualizarProducto() {
+            const id = document.getElementById('edit-id').value;
+            const nombre = document.getElementById('edit-nombre').value;
+            const precio = document.getElementById('edit-precio').value;
+            const stock = document.getElementById('edit-stock').value;
+            const imagenFile = document.getElementById('edit-imagen').files[0];
+            
+            let imagenBase64 = null;
+            if (imagenFile) {
+                imagenBase64 = await convertirImagenABase64(imagenFile);
+            }
+            
+            try {
+                const body = { nombre, precio: parseFloat(precio), stock: parseInt(stock) };
+                if (imagenBase64) body.imagen = imagenBase64;
+                
+                await fetch(`${API}/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                
+                cerrarModal();
+                cargarProductos();
+                alert('✅ Producto actualizado exitosamente');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error al actualizar el producto');
+            }
+        }
+
+        // Eliminar producto
+        async function eliminarProducto(id) {
+            if (confirm('¿Estás seguro de eliminar este producto?')) {
+                try {
+                    await fetch(`${API}/${id}`, { method: 'DELETE' });
+                    cargarProductos();
+                    alert('✅ Producto eliminado exitosamente');
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('❌ Error al eliminar el producto');
+                }
+            }
+        }
+
+        // Cerrar modal
+        function cerrarModal() {
+            document.getElementById('edit-modal').style.display = 'none';
+        }
+
+        // Cargar productos al iniciar
+        cargarProductos();
+    </script>
+</body>
+</html>
